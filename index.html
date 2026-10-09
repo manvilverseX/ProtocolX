@@ -136,12 +136,11 @@
           <div id="input-error" style="display: none; color: #ef4444; margin-top: 8px; font-size: 14px; font-weight: 500;"></div>
 
           <div class="file-input-wrapper">
-            <span class="examples-label">Or upload a log file:</span>
+            <span class="examples-label">Or upload log files:</span>
             <label class="file-input-btn">
-              Select File
-              <input type="file" class="file-input" />
+              Select Files
+              <input type="file" id="chatFileInput" class="file-input" accept=".txt,.zip" multiple />
             </label>
-            <span style="font-size: 12px; opacity: 0.6;">(Feature coming soon)</span>
           </div>
 
           <!-- Analyze Button -->
@@ -224,19 +223,18 @@
 
             <div class="bento-card bento-span-3 bento-glow-red" id="dashboard-disclaimer" style="margin-bottom: -8px;">
               <p style="font-size: 14px; color: var(--text-primary); line-height: 1.5;">
-                <strong>Notice:</strong> Input accepted (<span id="input-length">0</span> characters). Real conversation analysis is not yet implemented. The dashboard below contains <em>fictional demonstration data</em> only.
+                <strong>Notice:</strong> Results are generated using deterministic keyword matching, not genuine semantic AI analysis. Accuracy may vary. (<span id="input-length">0</span> chars processed)
               </p>
             </div>
 
             <!-- 1. Catch-up Summary (Hero) -->
             <div class="bento-card bento-span-3 bento-glow-purple">
               <div class="bento-card-header">
-                <span class="bento-label">Catch-up Summary</span>
-                <span class="bento-badge badge-purple">AI Generated</span>
+                <span class="bento-label">Conversation Stats</span>
+                <span class="bento-badge badge-purple">Heuristics</span>
               </div>
-              <div class="placeholder-content" style="font-size: 16px;">
-                <p><strong>TL;DR:</strong> The team discussed the upcoming Q4 launch. The marketing assets are delayed due to resource constraints, but engineering is on track. A critical decision was made to drop the "Beta" tag from the pricing page.</p>
-                <p style="margin-top: 12px;">The discussion shifted towards backend scaling issues, which Alice will investigate. You have been explicitly tagged regarding the database migration scheduled for this weekend.</p>
+              <div class="placeholder-content" style="font-size: 16px;" id="dash-summary">
+                <p>No conversation analyzed.</p>
               </div>
             </div>
 
@@ -244,70 +242,54 @@
             <div class="bento-card bento-glow-earthquake">
               <div class="bento-card-header">
                 <span class="bento-label">Urgent Items</span>
-                <span class="bento-badge badge-red pulsing-red">1 Critical</span>
+                <span class="bento-badge badge-red" id="badge-urgent">0</span>
               </div>
-              <div class="placeholder-content">
-                <div class="placeholder-item">
-                  <div class="placeholder-item-title">⚠️ Database Migration Go/No-Go</div>
-                  <div>Needs your approval by EOD today to proceed this weekend.</div>
-                </div>
+              <div class="placeholder-content" id="dash-urgent">
+                <p style="color: var(--text-secondary); font-size: 14px;">No urgent items detected.</p>
               </div>
             </div>
 
             <!-- 3. Your Action Items (Purple) -->
             <div class="bento-card bento-glow-purple">
               <div class="bento-card-header">
-                <span class="bento-label">Your Action Items</span>
-                <span class="bento-badge badge-purple">2 Pending</span>
+                <span class="bento-label">Action Items (Tasks)</span>
+                <span class="bento-badge badge-purple" id="badge-action-items">0</span>
               </div>
-              <ul class="change-list">
-                <li class="change-item"><span class="change-dot"></span>Review Q4 Marketing Assets</li>
-                <li class="change-item"><span class="change-dot"></span>Approve DB Migration Plan</li>
+              <ul class="change-list" id="dash-action-items">
+                <li style="color: var(--text-secondary); font-size: 14px;">No action items detected.</li>
               </ul>
             </div>
 
             <!-- 4. Mentions & Unanswered Questions (Blue) -->
             <div class="bento-card bento-glow-blue">
               <div class="bento-card-header">
-                <span class="bento-label">Mentions & Questions</span>
-                <span class="bento-badge badge-blue">@You</span>
+                <span class="bento-label">Questions & Mentions</span>
+                <span class="bento-badge badge-blue" id="badge-mentions">0</span>
               </div>
-              <div class="placeholder-content">
-                <div class="placeholder-item">
-                  <div class="placeholder-item-title">Bob asked:</div>
-                  <div>"Are we still doing the UI freeze tomorrow or is it pushed back?"</div>
-                </div>
-                <div class="placeholder-item">
-                  <div class="placeholder-item-title">Alice mentioned you:</div>
-                  <div>"Can you check if the API rate limits are applied?"</div>
-                </div>
+              <div class="placeholder-content" id="dash-mentions">
+                <p style="color: var(--text-secondary); font-size: 14px;">No questions or mentions detected.</p>
               </div>
             </div>
 
             <!-- 6. Decisions Made (Green) -->
             <div class="bento-card bento-span-2 bento-glow-green">
               <div class="bento-card-header">
-                <span class="bento-label">Decisions Made</span>
-                <span class="bento-badge badge-green">Finalized</span>
+                <span class="bento-label">Possible Decisions</span>
+                <span class="bento-badge badge-green" id="badge-decisions">0</span>
               </div>
-              <ul class="change-list">
-                <li class="change-item positive"><span class="change-dot"></span><strong>Pricing Page:</strong> Dropping "Beta" tag for Q4 launch.</li>
-                <li class="change-item positive"><span class="change-dot"></span><strong>Backend:</strong> Shifting to Redis for session caching instead of Memcached.</li>
-                <li class="change-item positive"><span class="change-dot"></span><strong>Meeting Cadence:</strong> Moving standups to 10:00 AM EST.</li>
+              <ul class="change-list" id="dash-decisions">
+                 <li style="color: var(--text-secondary); font-size: 14px;">No decisions detected.</li>
               </ul>
             </div>
 
             <!-- 8. Needs Confirmation & Conflicts (Warning) -->
             <div class="bento-card bento-glow-red">
               <div class="bento-card-header">
-                <span class="bento-label">Needs Resolution</span>
-                <span class="bento-badge badge-red">Conflict</span>
+                <span class="bento-label">Needs Confirmation</span>
+                <span class="bento-badge badge-red" id="badge-resolution">0</span>
               </div>
-              <div class="placeholder-content">
-                <div class="placeholder-item">
-                  <div class="placeholder-item-title">Conflicting timelines</div>
-                  <div>Marketing wants launch on 15th, Engineering says 22nd. No clear resolution in thread.</div>
-                </div>
+              <div class="placeholder-content" id="dash-resolution">
+                 <p style="color: var(--text-secondary); font-size: 14px;">Nothing detected.</p>
               </div>
             </div>
 
@@ -327,16 +309,8 @@
                <div class="bento-card-header">
                 <span class="bento-label">All Action Items</span>
               </div>
-              <div class="placeholder-content">
-                <div class="placeholder-item">
-                  <input type="checkbox" id="task1" /> <label for="task1" class="placeholder-item-title">Review Q4 Marketing Assets (Assigned to You)</label>
-                </div>
-                <div class="placeholder-item">
-                  <input type="checkbox" id="task2" /> <label for="task2" class="placeholder-item-title">Approve DB Migration Plan (Assigned to You)</label>
-                </div>
-                <div class="placeholder-item">
-                  <input type="checkbox" id="task3" disabled /> <label for="task3" class="placeholder-item-title">Investigate backend scaling (Assigned to Alice)</label>
-                </div>
+              <div class="placeholder-content" id="tab-action-items-list">
+                 <p style="color: var(--text-secondary); font-size: 14px;">No action items detected.</p>
               </div>
             </div>
           </div>
@@ -352,25 +326,23 @@
           </div>
           <div class="bento-grid">
 
-            <!-- 5. Upcoming Events -->
+            <!-- 5. Past Highlights -->
             <div class="bento-card bento-span-2 bento-glow-blue">
                <div class="bento-card-header">
-                <span class="bento-label">Upcoming Events</span>
+                <span class="bento-label">Past Highlights</span>
               </div>
-              <div class="placeholder-content">
-                <div class="placeholder-item"><strong>Tomorrow 10:00 AM:</strong> New daily standup time.</div>
-                <div class="placeholder-item"><strong>Friday 5:00 PM:</strong> UI Code Freeze.</div>
-                <div class="placeholder-item"><strong>Saturday 2:00 AM:</strong> Scheduled DB Migration.</div>
+              <div class="placeholder-content" id="tab-events-list">
+                 <p style="color: var(--text-secondary); font-size: 14px;">No highlights detected.</p>
               </div>
             </div>
 
             <!-- 7. Past Events & Decisions -->
             <div class="bento-card bento-span-1">
                <div class="bento-card-header">
-                <span class="bento-label">Past Context</span>
+                <span class="bento-label">Analysis Logic</span>
               </div>
               <div class="placeholder-content">
-                <p>Previously, the team agreed to focus entirely on Q4 deliverables, delaying tech debt cleanup until January. This context explains the pushback on Alice's scaling proposals.</p>
+                <p>Results are generated entirely on the client side using heuristic pattern matching. Complex semantic reasoning is not applied.</p>
               </div>
             </div>
 
@@ -381,6 +353,7 @@
     </div>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
