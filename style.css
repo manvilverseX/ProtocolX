@@ -10,38 +10,38 @@
 }
 
 :root {
-  --bg-primary: rgb(6, 6, 14);
-  --bg-secondary: rgba(15, 15, 30, 0.8);
-  --bg-card: rgba(12, 12, 26, 0.85);
-  --bg-card-hover: rgba(20, 20, 40, 0.9);
+  --bg-primary: #FAFAFA;
+  --bg-secondary: #F4F4F5;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FAFC;
 
-  --purple: rgb(124, 58, 237);
-  --blue: rgb(37, 99, 235);
-  --purple-light: rgb(167, 139, 250);
-  --blue-light: rgb(96, 165, 250);
-  --purple-dim: rgba(124, 58, 237, 0.15);
-  --blue-dim: rgba(37, 99, 235, 0.15);
+  --purple: #0F172A;
+  --blue: #334155;
+  --purple-light: #475569;
+  --blue-light: #64748B;
+  --purple-dim: rgba(15, 23, 42, 0.05);
+  --blue-dim: rgba(51, 65, 85, 0.05);
 
-  --text-primary: #F1F5F9;
-  --text-secondary: #94A3B8;
-  --text-muted: #475569;
-  --text-gradient-start: rgb(124, 58, 237);
-  --text-gradient-end: rgb(37, 99, 235);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --text-gradient-start: #0F172A;
+  --text-gradient-end: #334155;
 
-  --border-subtle: rgba(124, 58, 237, 0.12);
-  --border-glow: rgba(124, 58, 237, 0.35);
+  --border-subtle: #E2E8F0;
+  --border-glow: transparent;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
 
-  --shadow-glow: 0 0 40px rgba(124, 58, 237, 0.12);
-  --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle);
-  --shadow-btn: 0 0 24px rgba(124, 58, 237, 0.45);
+  --shadow-glow: none;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-btn: 0 1px 2px rgba(0,0,0,0.05);
 
   --transition-fast: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-smooth: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -66,23 +66,11 @@ body {
    ===================================================== */
 
 #particleCanvas {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  opacity: 0.6;
+  display: none;
 }
 
 .grid-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  background-image:
-    linear-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124, 58, 237, 0.03) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: radial-gradient(ellipse 90% 80% at 50% 50%, black, transparent);
+  display: none;
 }
 
 /* =====================================================
@@ -107,9 +95,7 @@ body {
   justify-content: space-between;
   padding: 18px 40px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(6, 6, 14, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: var(--bg-card);
   position: sticky;
   top: 0;
   z-index: 100;

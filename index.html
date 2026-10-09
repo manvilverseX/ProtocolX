@@ -81,14 +81,14 @@
 <body>
 
   <!-- Modal for Source Message -->
-  <div id="sourceModal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:999; justify-content:center; align-items:center; backdrop-filter: blur(4px);">
-    <div class="modal-content" style="background:#1e1e2e; padding:24px; border-radius:12px; max-width:600px; width:90%; max-height:80vh; overflow-y:auto; border:1px solid rgba(255,255,255,0.1); position:relative; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-      <button onclick="closeSourceModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:white; cursor:pointer; padding:4px; border-radius:4px;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='none'">
+  <div id="sourceModal" class="modal-overlay hidden" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:999; justify-content:center; align-items:center; backdrop-filter: blur(2px);">
+    <div class="modal-content" style="background:var(--bg-card); padding:24px; border-radius:var(--radius-lg); max-width:600px; width:90%; max-height:80vh; overflow-y:auto; border:1px solid var(--border-subtle); position:relative; box-shadow:var(--shadow-card);">
+      <button onclick="closeSourceModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--text-secondary); cursor:pointer; padding:4px; border-radius:4px;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='none'">
          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
       </button>
-      <h3 style="margin-top:0; color:#3b82f6; font-family:'Inter', sans-serif;">Original Source</h3>
-      <div id="modal-metadata" style="font-size:13px; color:#9ca3af; margin-bottom:12px; font-family:'Inter', sans-serif;"></div>
-      <div id="modal-body" style="font-size:14px; color:#e5e7eb; line-height:1.6; white-space:pre-wrap; background:rgba(0,0,0,0.3); padding:16px; border-radius:8px; font-family:'JetBrains Mono', monospace; overflow-x:auto;"></div>
+      <h3 style="margin-top:0; color:var(--text-primary); font-family:var(--font-sans); font-size:16px; font-weight:600;">Original Source</h3>
+      <div id="modal-metadata" style="font-size:13px; color:var(--text-muted); margin-bottom:16px; font-family:var(--font-sans);"></div>
+      <div id="modal-body" style="font-size:14px; color:var(--text-secondary); line-height:1.6; white-space:pre-wrap; background:var(--bg-secondary); padding:16px; border-radius:var(--radius-sm); font-family:var(--font-sans); overflow-x:auto;"></div>
     </div>
   </div>
 
@@ -136,12 +136,10 @@
         </div>
 
         <h1 class="hero-title">
-          What Did I<br />
-          <span class="gradient-text-alt">Miss?</span>
+          Catch up on what matters.
         </h1>
         <p class="hero-subtitle">
-          Paste your lengthy unread conversations or threads below, and our local<br />
-          intelligence engine will summarize actions, decisions, and urgency.
+          Your conversations, distilled into the things you need to know.
         </p>
 
         <!-- Input Card -->

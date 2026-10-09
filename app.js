@@ -155,6 +155,18 @@ window.openSourceModal = function(idx) {
 window.closeSourceModal = function() {
     document.getElementById('sourceModal').style.display = 'none';
 };
+window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') window.closeSourceModal();
+});
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('sourceModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) window.closeSourceModal();
+        });
+    }
+});
+
 function addSourceMessage(originalText, metadata) {
    window.sourceMessages.push({ text: originalText, meta: metadata });
    return window.sourceMessages.length - 1;
@@ -465,7 +477,7 @@ function analyzeConversation(text) {
     if (typeof item === 'object') {
       const summary = summarizeMessage(item.original, 'task');
       const idx = addSourceMessage(item.original, extractMetadata(item.original));
-      return `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})" style="margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+      return `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})" style="margin-bottom: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-subtle);">
                 <div class="placeholder-item-title" style="color: #3b82f6; margin-bottom: 6px; font-weight: 600;">${escapeHtml(summary)}</div>
                 <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 4px;">
                   <strong>Owner:</strong> ${escapeHtml(item.owner)} &nbsp;|&nbsp;
@@ -499,11 +511,11 @@ function analyzeConversation(text) {
       let html = '';
       sortedDates.forEach(d => {
         html += `<div style="margin-bottom: 24px;">
-                   <h4 style="margin: 0 0 12px 0; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">${escapeHtml(d)}</h4>`;
+                   <h4 style="margin: 0 0 12px 0; color: var(--text-primary); border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px;">${escapeHtml(d)}</h4>`;
         groups[d].forEach(h => {
           const summary = summarizeMessage(h.original, 'highlight');
           const idx = addSourceMessage(h.original, extractMetadata(h.original));
-          html += `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})" style="margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+          html += `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})" style="margin-bottom: 12px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-subtle);">
                      <div class="placeholder-item-title" style="color: #3b82f6; margin-bottom: 6px; font-weight: 600;">[${escapeHtml(h.type)}] ${escapeHtml(h.desc)}</div>
                      <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">${escapeHtml(summary)}</div>
                    </div>`;
