@@ -143,7 +143,67 @@ function processConversationData(text) {
   analyzeConversation(text);
 }
 
+window.sourceMessages = [];
+window.openSourceModal = function(idx) {
+    const data = window.sourceMessages[idx];
+    document.getElementById('modal-metadata').innerHTML = data.meta;
+    document.getElementById('modal-body').textContent = data.text;
+    const modal = document.getElementById('sourceModal');
+    modal.style.display = 'flex';
+    modal.classList.remove('hidden');
+};
+window.closeSourceModal = function() {
+    document.getElementById('sourceModal').style.display = 'none';
+};
+function addSourceMessage(originalText, metadata) {
+   window.sourceMessages.push({ text: originalText, meta: metadata });
+   return window.sourceMessages.length - 1;
+}
+
+function extractMetadata(line) {
+    const prefixRegex = /^\[?(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}[, ]+\d{1,2}:\d{2}(?::\d{2})?(?: [AP]M)?)\]?(?: -)? ([^:]+):\s*/i;
+    const match = line.match(prefixRegex);
+    if (match) {
+        return `<strong>Sender:</strong> ${escapeHtml(match[2])} &nbsp;|&nbsp; <strong>Date:</strong> ${escapeHtml(match[1])}`;
+    }
+    return `<strong>Source:</strong> Unknown metadata`;
+}
+
+function summarizeMessage(text, type) {
+    const prefixRegex = /^\[?\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}[, ]+\d{1,2}:\d{2}(?::\d{2})?(?: [AP]M)?\]?(?: -)? ([^:]+:\s*)?/i;
+    let content = text.replace(prefixRegex, '').trim();
+    let sentences = content.match(/[^.!?\n]+(?:[.!?\n]+|$)/g);
+    if (!sentences) {
+        sentences = content.split('\n').filter(s => s.trim().length > 0);
+    }
+    if (!sentences || sentences.length === 0) return content.substring(0, 100) + (content.length > 100 ? '...' : '');
+    
+    let summarySentences = [];
+    if (type === 'question' || type === 'mention') {
+        summarySentences = sentences.filter(s => s.includes('?') || s.includes('@'));
+    } else if (type === 'task') {
+        const actionWords = /todo|task|submit|register|prepare|bring|send|upload/i;
+        summarySentences = sentences.filter(s => actionWords.test(s));
+    } else if (type === 'decision') {
+        const decisionWords = /decided|agreed|going with/i;
+        summarySentences = sentences.filter(s => decisionWords.test(s));
+    }
+    
+    if (summarySentences.length === 0) {
+       summarySentences = sentences.slice(0, 1);
+    } else if (summarySentences.length > 2) {
+       summarySentences = summarySentences.slice(0, 2);
+    }
+    
+    let summary = summarySentences.join(' ').trim();
+    if (summary.length > 150) {
+        summary = summary.substring(0, 147) + '...';
+    }
+    return summary;
+}
+
 function analyzeConversation(text) {
+  window.sourceMessages = [];
   const rawLines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   const lines = [];
   const whatsappTimestampRegex = /^\[?\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}[, ]+\d{1,2}:\d{2}(?::\d{2})?(?: [AP]M)?\]?(?: -)? /i;
@@ -374,25 +434,44 @@ function analyzeConversation(text) {
     summaryEl.innerHTML = `<p>Processed ${stats.lines} non-empty lines (${stats.chars} characters). Found ${urgent.length} urgent item(s), ${tasks.length} task(s), and ${decisions.length} decision(s).</p>`;
   }
 
-  renderList(urgent, 'dash-urgent', 'badge-urgent', 'No urgent items detected.', (item) => `<div class="placeholder-item"><div class="placeholder-item-title">Keyword Match</div><div>${escapeHtml(item)}</div></div>`);
-  renderList(tasks, 'dash-action-items', 'badge-action-items', 'No action items detected.', (item) => `<li class="change-item"><span class="change-dot"></span>${escapeHtml(item.action || item)}</li>`);
-  renderList(questions, 'dash-mentions', 'badge-mentions', 'No questions or mentions detected.', (item) => `<div class="placeholder-item"><div>${escapeHtml(item)}</div></div>`);
-  renderList(decisions, 'dash-decisions', 'badge-decisions', 'No decisions detected.', (item) => `<li class="change-item positive"><span class="change-dot"></span>${escapeHtml(item)}</li>`);
-  renderList(resolution, 'dash-resolution', 'badge-resolution', 'Nothing detected.', (item) => `<div class="placeholder-item"><div class="placeholder-item-title">Needs confirmation</div><div>${escapeHtml(item)}</div></div>`);
+  renderList(urgent, 'dash-urgent', 'badge-urgent', 'No urgent items detected.', (item) => {
+    const summary = summarizeMessage(item, 'urgent');
+    const idx = addSourceMessage(item, extractMetadata(item));
+    return `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})"><div class="placeholder-item-title">Keyword Match</div><div>${escapeHtml(summary)}</div></div>`;
+  });
+  renderList(tasks, 'dash-action-items', 'badge-action-items', 'No action items detected.', (item) => {
+    const summary = summarizeMessage(item.original, 'task');
+    const idx = addSourceMessage(item.original, extractMetadata(item.original));
+    return `<li class="change-item clickable-item" onclick="openSourceModal(${idx})"><span class="change-dot"></span>${escapeHtml(summary)}</li>`;
+  });
+  renderList(questions, 'dash-mentions', 'badge-mentions', 'No questions or mentions detected.', (item) => {
+    const summary = summarizeMessage(item, 'question');
+    const idx = addSourceMessage(item, extractMetadata(item));
+    return `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})"><div>${escapeHtml(summary)}</div></div>`;
+  });
+  renderList(decisions, 'dash-decisions', 'badge-decisions', 'No decisions detected.', (item) => {
+    const summary = summarizeMessage(item, 'decision');
+    const idx = addSourceMessage(item, extractMetadata(item));
+    return `<li class="change-item positive clickable-item" onclick="openSourceModal(${idx})"><span class="change-dot"></span>${escapeHtml(summary)}</li>`;
+  });
+  renderList(resolution, 'dash-resolution', 'badge-resolution', 'Nothing detected.', (item) => {
+    const summary = summarizeMessage(item, 'question');
+    const idx = addSourceMessage(item, extractMetadata(item));
+    return `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})"><div class="placeholder-item-title">Needs confirmation</div><div>${escapeHtml(summary)}</div></div>`;
+  });
 
   // Tabs
   renderList(tasks, 'tab-action-items-list', null, 'No action items detected.', (item) => {
     if (typeof item === 'object') {
-      return `<div class="placeholder-item" style="margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
-                <div class="placeholder-item-title" style="color: #3b82f6; margin-bottom: 6px; font-weight: 600;">${escapeHtml(item.action)}</div>
+      const summary = summarizeMessage(item.original, 'task');
+      const idx = addSourceMessage(item.original, extractMetadata(item.original));
+      return `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})" style="margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                <div class="placeholder-item-title" style="color: #3b82f6; margin-bottom: 6px; font-weight: 600;">${escapeHtml(summary)}</div>
                 <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 4px;">
                   <strong>Owner:</strong> ${escapeHtml(item.owner)} &nbsp;|&nbsp;
                   <strong>Deadline:</strong> ${escapeHtml(item.deadline)} &nbsp;|&nbsp;
                   <strong>Status:</strong> ${escapeHtml(item.status)} &nbsp;|&nbsp;
                   <strong>Priority:</strong> ${escapeHtml(item.priority)}
-                </div>
-                <div style="font-size: 12px; color: rgba(255,255,255,0.4); border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 6px; margin-top: 6px;">
-                  Source: ${escapeHtml(item.original)}
                 </div>
              </div>`;
     }
@@ -422,9 +501,11 @@ function analyzeConversation(text) {
         html += `<div style="margin-bottom: 24px;">
                    <h4 style="margin: 0 0 12px 0; color: var(--text-primary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;">${escapeHtml(d)}</h4>`;
         groups[d].forEach(h => {
-          html += `<div class="placeholder-item" style="margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
+          const summary = summarizeMessage(h.original, 'highlight');
+          const idx = addSourceMessage(h.original, extractMetadata(h.original));
+          html += `<div class="placeholder-item clickable-item" onclick="openSourceModal(${idx})" style="margin-bottom: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05);">
                      <div class="placeholder-item-title" style="color: #3b82f6; margin-bottom: 6px; font-weight: 600;">[${escapeHtml(h.type)}] ${escapeHtml(h.desc)}</div>
-                     <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">${escapeHtml(h.original)}</div>
+                     <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">${escapeHtml(summary)}</div>
                    </div>`;
         });
         html += `</div>`;
@@ -435,11 +516,10 @@ function analyzeConversation(text) {
 }
 
 
-// Action State Persistence
-window.pxActionState = JSON.parse(localStorage.getItem('px-action-state') || '{}');
+// Action State Persistence (In-memory only)
+window.pxActionState = window.pxActionState || {};
 window.toggleAction = function(taskId, checkbox) {
   window.pxActionState[taskId] = checkbox.checked;
-  localStorage.setItem('px-action-state', JSON.stringify(window.pxActionState));
   const card = document.getElementById('task-card-' + taskId);
   const statusEl = document.getElementById('task-status-' + taskId);
   if (checkbox.checked) {
