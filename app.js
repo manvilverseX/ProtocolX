@@ -114,10 +114,40 @@ function showState(state) {
 
 function resetState() {
   showState('welcome');
+  const errorEl = document.getElementById('input-error');
+  if (errorEl) errorEl.style.display = 'none';
+}
+
+function processConversationData(text) {
+  // Local processing boundary.
+  // In future phases, NLP analysis happens here.
+
+  // Update dashboard notice
+  const lengthSpan = document.getElementById('input-length');
+  if (lengthSpan) {
+    lengthSpan.textContent = text.length;
+  }
 }
 
 function startAnalysis() {
-  // Simulate an analysis process
+  const inputEl = document.getElementById('chatInput');
+  const errorEl = document.getElementById('input-error');
+
+  if (!inputEl) return;
+
+  const text = inputEl.value.trim();
+  if (!text) {
+    if (errorEl) {
+      errorEl.textContent = 'Please paste a conversation to analyze.';
+      errorEl.style.display = 'block';
+    }
+    return;
+  }
+
+  if (errorEl) {
+    errorEl.style.display = 'none';
+  }
+
   const btn = document.getElementById('analyzeBtn');
   btn.style.pointerEvents = 'none';
   const originalHtml = btn.querySelector('.btn-content').innerHTML;
@@ -135,6 +165,9 @@ function startAnalysis() {
     s.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
     document.head.appendChild(s);
   }
+
+  // Pass to local processor
+  processConversationData(text);
 
   // Fake delay then transition
   setTimeout(() => {

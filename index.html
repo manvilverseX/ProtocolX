@@ -133,6 +133,7 @@
             <textarea id="chatInput" class="repo-input conversation-input" placeholder="Paste your chat logs, Slack threads, or email chains here..."></textarea>
             <div class="input-shimmer"></div>
           </div>
+          <div id="input-error" style="display: none; color: #ef4444; margin-top: 8px; font-size: 14px; font-weight: 500;"></div>
 
           <div class="file-input-wrapper">
             <span class="examples-label">Or upload a log file:</span>
@@ -220,6 +221,12 @@
           </div>
 
           <div class="bento-grid">
+
+            <div class="bento-card bento-span-3 bento-glow-red" id="dashboard-disclaimer" style="margin-bottom: -8px;">
+              <p style="font-size: 14px; color: var(--text-primary); line-height: 1.5;">
+                <strong>Notice:</strong> Input accepted (<span id="input-length">0</span> characters). Real conversation analysis is not yet implemented. The dashboard below contains <em>fictional demonstration data</em> only.
+              </p>
+            </div>
 
             <!-- 1. Catch-up Summary (Hero) -->
             <div class="bento-card bento-span-3 bento-glow-purple">
